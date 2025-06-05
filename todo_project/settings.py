@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your-secret-key-here'
 DEBUG = False
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'todo-project-prgg.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 
