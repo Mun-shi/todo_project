@@ -1,0 +1,93 @@
+{% extends 'todo/base.html' %}
+
+{% block title %}My Todos{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>My Todos</h2>
+            <a href="{% url 'todo:create' %}" class="btn btn-primary">Add New Todo</a>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" placeholder="Search todos..." value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All Status</option>
+                            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="priority" class="form-control">
+                            <option value="all" {% if priority_filter == 'all' %}selected{% endif %}>All Priorities</option>
+                            <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+                            <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Medium</option>
+                            <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Todo List -->
+        {% if todos %}
+            <div class="row">
+                {% for todo in todos %}
+                <div class="col-md-6 mb-3">
+                    <div class="card {% if todo.completed %}border-success{% elif todo.priority == 'high' %}border-danger{% elif todo.priority == 'medium' %}border-warning{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title {% if todo.completed %}text-decoration-line-through text-muted{% endif %}">
+                                    {{ todo.title }}
+                                </h5>
+                                <span class="badge bg-{% if todo.priority == 'high' %}danger{% elif todo.priority == 'medium' %}warning{% else %}secondary{% endif %}">
+                                    {{ todo.get_priority_display }}
+                                </span>
+                            </div>
+                            
+                            {% if todo.description %}
+                            <p class="card-text {% if todo.completed %}text-muted{% endif %}">{{ todo.description|truncatewords:20 }}</p>
+                            {% endif %}
+                            
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    Created: {{ todo.created_date|date:"M d, Y H:i" }}
+                                    {% if todo.due_date %}
+                                        | Due: {{ todo.due_date|date:"M d, Y H:i" }}
+                                    {% endif %}
+                                </small>
+                            </div>
+
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'todo:toggle' todo.pk %}" class="btn btn-sm btn-{% if todo.completed %}warning{% else %}success{% endif %}">
+                                    {% if todo.completed %}Mark Pending{% else %}Mark Complete{% endif %}
+                                </a>
+                                <a href="{% url 'todo:update' todo.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <a href="{% url 'todo:delete' todo.pk %}" class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Are you sure you want to delete this todo?')">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <h4 class="text-muted">No todos found</h4>
+                <p>Start by creating your first todo!</p>
+                <a href="{% url 'todo:create' %}" class="btn btn-primary">Create Todo</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
